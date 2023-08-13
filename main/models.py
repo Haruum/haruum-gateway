@@ -19,3 +19,7 @@ class HaruumUser(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
+
+    def get_email(self):
+        return self.email
+

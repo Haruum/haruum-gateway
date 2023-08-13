@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'main',
+    'search',
+    'order',
+    'customer',
+    'outlet',
 ]
 
 MIDDLEWARE = [
@@ -171,7 +175,25 @@ AUTH_USER_MODEL = 'main.HaruumUser'
 OUTLET_APPLICATION_URL = 'http://localhost:8000'
 OUTLET_REGISTRATION_URL = f'{OUTLET_APPLICATION_URL}/user/register/'
 OUTLET_CREDENTIALS_URL = f'{OUTLET_APPLICATION_URL}/user/check-password/'
+OUTLET_ALL_OUTLETS_URL = f'{OUTLET_APPLICATION_URL}/search/outlets/'
+OUTLET_DETAIL_URL = f'{OUTLET_APPLICATION_URL}/user/data/'
+OUTLET_SERVICES_URL = f'{OUTLET_APPLICATION_URL}/search/outlet/services/'
+OUTLET_UPDATE_URL = f'{OUTLET_APPLICATION_URL}/user/update/'
+OUTLET_UPDATE_SERVICE_URL = f'{OUTLET_APPLICATION_URL}/user/services-provided/update/'
 
 CUSTOMER_APPLICATION_URL = 'http://localhost:8001'
 CUSTOMER_REGISTRATION_URL = f'{CUSTOMER_APPLICATION_URL}/user/register/'
 CUSTOMER_CREDENTIALS_URL = f'{CUSTOMER_APPLICATION_URL}/user/check-password/'
+CUSTOMER_DETAILS_URL = f'{CUSTOMER_APPLICATION_URL}/user/data/'
+CUSTOMER_UPDATE_ADDRESS_URL = f'{CUSTOMER_APPLICATION_URL}/user/update-address/'
+
+ORDER_APPLICATION_URL = 'http://localhost:8002'
+ORDER_CREATION_URL = f'{ORDER_APPLICATION_URL}/order/create/'
+ORDER_GET_ORDERS_OF_OUTLET_URL = f'{ORDER_APPLICATION_URL}/order/outlet-orders/'
+ORDER_ALL_STATUS = f'{ORDER_APPLICATION_URL}/status/all'
+ORDER_DETAILS_URL = f'{ORDER_APPLICATION_URL}/order/detail/'
+ORDER_UPDATE_STATUS_URL = f'{ORDER_APPLICATION_URL}/status/update/'
+ORDER_CUSTOMER_ACTIVE_URL = f'{ORDER_APPLICATION_URL}/order/customer-orders/active/'
+ORDER_CUSTOMER_COMPLETED_URL = f'{ORDER_APPLICATION_URL}/order/customer-orders/completed/'
+ORDER_SUBMIT_REVIEW_URL = f'{ORDER_APPLICATION_URL}/review/create/'
+ORDER_GET_OUTLET_REVIEWS_URL = f'{ORDER_APPLICATION_URL}/review/outlet'
