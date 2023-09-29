@@ -1,6 +1,6 @@
 from django.views.decorators.http import require_GET, require_POST
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from haruum_gateway.decorators import firebase_authenticated
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .services import customer_management
 import json
@@ -8,7 +8,7 @@ import json
 
 @require_GET
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_get_customer_data(request):
     """
     This view returns the list of services provided by an outlet.
@@ -19,7 +19,7 @@ def serve_get_customer_data(request):
 
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_update_customer_address(request):
     """
     This view updates the customer's latest delivery address,

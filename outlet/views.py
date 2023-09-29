@@ -1,4 +1,5 @@
 from django.views.decorators.http import require_POST, require_GET
+from haruum_gateway.decorators import firebase_authenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,7 +9,7 @@ import json
 
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_update_laundry_outlet_data(request):
     """
     This view updates the laundry outlet data
@@ -28,7 +29,7 @@ def serve_update_laundry_outlet_data(request):
 
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_update_item_laundry_outlet_category_provided(request):
     """
     This view updates the laundry outlet provided services.
@@ -60,5 +61,17 @@ def serve_get_reviews_of_outlet(request):
     request_data = request.GET
     response_data = outlet.handle_get_reviews_of_outlet(request_data)
     return Response(data=response_data)
+
+
+@require_GET
+@api_view(['GET'])
+@firebase_authenticated()
+def serve_get_outlet_data(request):
+    """
+    This view returns the data of the accessing outlet user.
+    """
+    response_data = outlet.handle_serve_get_outlet_data(request.user)
+    return Response(data=response_data)
+
 
 

@@ -1,21 +1,32 @@
 from django.views.decorators.http import require_POST, require_GET
+from haruum_gateway.decorators import firebase_authenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .services import order
+from .services import order, payment
 import json
+
+
+@require_GET
+@api_view(['GET'])
+def serve_get_payment_methods(request):
+    """
+    This view serves as the endpoint to get
+    all registered payment method.
+    """
+    response_data = payment.handle_get_payment_methods()
+    return Response(data=response_data)
 
 
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_create_order(request):
     """
     This view serves as the endpoint to create
     an order.
     ---------------------------------------------
     request data must contain:
-    customer_email: string
     assigned_outlet_email: string
     pickup_delivery_address: string
     payment_method_id: UUID string
@@ -34,7 +45,7 @@ def serve_create_order(request):
 
 @require_GET
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_get_laundry_orders_of_outlet(request):
     """
     This view returns a list of laundry orders
@@ -58,9 +69,26 @@ def serve_get_laundry_progress_statuses(request):
     return Response(data=response_data)
 
 
+@require_GET
+@api_view(['GET'])
+@firebase_authenticated()
+def serve_get_outlet_order_details(request):
+    """
+    This view serves as the endpoint to return the
+    details of a laundry order specified by the
+    laundry_order_id attribute
+    ---------------------------------------------
+    request param must contain:
+    laundry_order_id: UUID string
+    """
+    request_data = request.GET
+    response_data = order.handle_get_outlet_order_details(request.user, request_data)
+    return Response(data=response_data)
+
+
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_update_laundry_progress_status(request):
     """
     This method serves as the endpoint to update laundry order
@@ -77,14 +105,12 @@ def serve_update_laundry_progress_status(request):
 
 @require_GET
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_get_active_laundry_orders_of_a_customer(request):
     """
     This view serves as the endpoint to return the list of
     active orders belonging to a customer.
     ---------------------------------------------
-    request param must contain:
-    email: string
     """
     response_data = order.handle_get_customer_active_orders(request.user)
     return Response(data=response_data)
@@ -92,7 +118,7 @@ def serve_get_active_laundry_orders_of_a_customer(request):
 
 @require_GET
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_get_completed_laundry_orders_of_a_customer(request):
     """
     This view serves as the endpoint to return the list of
@@ -105,7 +131,7 @@ def serve_get_completed_laundry_orders_of_a_customer(request):
 
 @require_GET
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_get_customer_order_details(request):
     """
     This view serves as the endpoint to return the
@@ -122,7 +148,7 @@ def serve_get_customer_order_details(request):
 
 @require_POST
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@firebase_authenticated()
 def serve_submit_rating_for_laundry_order(request):
     """
     This view registers a review for a laundry order.

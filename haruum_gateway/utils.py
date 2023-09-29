@@ -1,6 +1,7 @@
 from haruum_gateway.exceptions import (
     InvalidRequestException,
     FailedToFetchException,
+    InvalidCredentialsException
 )
 from rest_framework import status
 import requests
@@ -49,3 +50,16 @@ def query_builder(base_url, params):
         modified_url = f'{modified_url}{k}={v}&'
 
     return modified_url[:-1]
+
+
+def get_id_token_from_authorization_header(authorization_header):
+    try:
+        return authorization_header.split()[1]
+
+    except AttributeError:
+        raise InvalidCredentialsException('No token was provided')
+
+    except IndexError:
+        raise InvalidCredentialsException('Given token is invalid')
+
+

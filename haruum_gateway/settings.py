@@ -9,11 +9,14 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+from .credentials_setup import firebase_admin
 from datetime import timedelta
+from firebase_admin import auth, credentials, initialize_app
 from pathlib import Path
 import dj_database_url
 import os
 
+firebase_admin.setup_firebase_admin_credentials()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'haruum_gateway.urls'
@@ -81,42 +85,7 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
     'EXCEPTION_HANDLER': 'haruum_gateway.exception_config.custom_exception_handler',
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=100),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
-    'JTI_CLAIM': 'jti',
-
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 WSGI_APPLICATION = 'haruum_gateway.wsgi.application'
@@ -172,7 +141,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'main.HaruumUser'
 
-OUTLET_APPLICATION_URL = 'http://localhost:8000'
+# Firebase Admin Configuration
+FIREBASE_CREDENTIAL = credentials.Certificate(r'firebase-credentials.json')
+FIREBASE_APP = initialize_app(credential=FIREBASE_CREDENTIAL)
+
+OUTLET_APPLICATION_URL = f"http://{os.getenv('OUTLET_APPLICATION_URL')}"
 OUTLET_REGISTRATION_URL = f'{OUTLET_APPLICATION_URL}/user/register/'
 OUTLET_CREDENTIALS_URL = f'{OUTLET_APPLICATION_URL}/user/check-password/'
 OUTLET_ALL_OUTLETS_URL = f'{OUTLET_APPLICATION_URL}/search/outlets/'
@@ -181,13 +154,13 @@ OUTLET_SERVICES_URL = f'{OUTLET_APPLICATION_URL}/search/outlet/services/'
 OUTLET_UPDATE_URL = f'{OUTLET_APPLICATION_URL}/user/update/'
 OUTLET_UPDATE_SERVICE_URL = f'{OUTLET_APPLICATION_URL}/user/services-provided/update/'
 
-CUSTOMER_APPLICATION_URL = 'http://localhost:8001'
+CUSTOMER_APPLICATION_URL = f"http://{os.getenv('CUSTOMER_APPLICATION_URL')}"
 CUSTOMER_REGISTRATION_URL = f'{CUSTOMER_APPLICATION_URL}/user/register/'
 CUSTOMER_CREDENTIALS_URL = f'{CUSTOMER_APPLICATION_URL}/user/check-password/'
 CUSTOMER_DETAILS_URL = f'{CUSTOMER_APPLICATION_URL}/user/data/'
 CUSTOMER_UPDATE_ADDRESS_URL = f'{CUSTOMER_APPLICATION_URL}/user/update-address/'
 
-ORDER_APPLICATION_URL = 'http://localhost:8002'
+ORDER_APPLICATION_URL = f"http://{os.getenv('ORDER_APPLICATION_URL')}"
 ORDER_CREATION_URL = f'{ORDER_APPLICATION_URL}/order/create/'
 ORDER_GET_ORDERS_OF_OUTLET_URL = f'{ORDER_APPLICATION_URL}/order/outlet-orders/'
 ORDER_ALL_STATUS = f'{ORDER_APPLICATION_URL}/status/all'
@@ -196,4 +169,5 @@ ORDER_UPDATE_STATUS_URL = f'{ORDER_APPLICATION_URL}/status/update/'
 ORDER_CUSTOMER_ACTIVE_URL = f'{ORDER_APPLICATION_URL}/order/customer-orders/active/'
 ORDER_CUSTOMER_COMPLETED_URL = f'{ORDER_APPLICATION_URL}/order/customer-orders/completed/'
 ORDER_SUBMIT_REVIEW_URL = f'{ORDER_APPLICATION_URL}/review/create/'
-ORDER_GET_OUTLET_REVIEWS_URL = f'{ORDER_APPLICATION_URL}/review/outlet'
+ORDER_GET_OUTLET_REVIEWS_URL = f'{ORDER_APPLICATION_URL}/review/outlet/'
+ORDER_PAYMENT_METHODS_URL = f'{ORDER_APPLICATION_URL}/order/payment/all/'

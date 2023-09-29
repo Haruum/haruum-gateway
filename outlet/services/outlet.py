@@ -1,5 +1,6 @@
 from haruum_gateway import utils as haruum_gateway_utils
 from haruum_gateway.settings import (
+    OUTLET_DETAIL_URL,
     OUTLET_UPDATE_URL,
     OUTLET_UPDATE_SERVICE_URL,
     ORDER_GET_OUTLET_REVIEWS_URL,
@@ -30,3 +31,11 @@ def handle_get_reviews_of_outlet(request_data):
     response_data = haruum_gateway_utils.request_get_and_return_response(request_data, ORDER_GET_OUTLET_REVIEWS_URL)
     return response_data
 
+
+def handle_serve_get_outlet_data(user):
+    transformed_request_data = transform_laundry_outlet_update_data(user.get_email(), {})
+    response_data = haruum_gateway_utils.request_get_and_return_response(
+        transformed_request_data,
+        OUTLET_DETAIL_URL
+    )
+    return response_data

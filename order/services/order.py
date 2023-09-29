@@ -18,7 +18,7 @@ def transform_create_order_request(customer_email, request_data):
 
 
 def handle_create_order(user, request_data: dict):
-    transformed_request_data = transform_create_order_request(user.email, request_data)
+    transformed_request_data = transform_create_order_request(user.get_email(), request_data)
     response_data = haruum_gateway_utils.request_post_and_return_response(transformed_request_data, ORDER_CREATION_URL)
     return response_data
 
@@ -48,16 +48,14 @@ def get_laundry_order_details(laundry_order_id):
     return order_data
 
 
-def validate_outlet_laundry_order_ownership(user, laundry_order_id):
-    order_data = get_laundry_order_details(laundry_order_id)
-    order_outlet_email = order_data.get('assigned_outlet_email')
-
-    if order_outlet_email != user.get_email():
-        raise RestrictedAccessException(f'User {user.get_email()} is not the assigned outlet for order')
+def validate_outlet_laundry_order_ownership(user, laundry_order_data):
+    if laundry_order_data.get('assigned_outlet_email') != user.get_email():
+        raise RestrictedAccessException(f'Outlet {user.get_email()} is not the assigned outlet of order')
 
 
 def handle_update_laundry_progress_status(user, request_data):
-    validate_outlet_laundry_order_ownership(user, request_data.get('laundry_order_id'))
+    laundry_order_details = get_laundry_order_details(request_data.get('laundry_order_id'))
+    validate_outlet_laundry_order_ownership(user, laundry_order_details)
     update_response_data = haruum_gateway_utils.request_post_and_return_response(request_data, ORDER_UPDATE_STATUS_URL)
     return update_response_data
 
@@ -88,6 +86,12 @@ def validate_customer_laundry_order_ownership(user, laundry_order_data):
 def handle_get_customer_order_details(user, request_data):
     laundry_order_details = get_laundry_order_details(request_data.get('laundry_order_id'))
     validate_customer_laundry_order_ownership(user, laundry_order_details)
+    return laundry_order_details
+
+
+def handle_get_outlet_order_details(user, request_data):
+    laundry_order_details = get_laundry_order_details(request_data.get('laundry_order_id'))
+    validate_outlet_laundry_order_ownership(user, laundry_order_details)
     return laundry_order_details
 
 
